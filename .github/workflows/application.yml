@@ -27,10 +27,23 @@ jobs:
       - run: npm run test
       - run: npm run build
 
-      - name: Build and Push Docker
-        uses: mr-smithers-excellent/docker-build-push@v4
-        with:
-          image: naska8701/njs
-          registry: docker.io
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with: 
+          aws-access-key-id: ${{ secrets.DOCKER_HUB_USERNAME }}
+          aws-secret-access-key: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, Tag, and Push the Umage to AWS ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: test-pilot
+          IMAGE_TAG: latest
+        run:
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:IMAGE:TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:IMAGE:TAG

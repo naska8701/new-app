@@ -1,11 +1,11 @@
-FROM node:10
+FROM node:14
 
-WORKDIR /src/app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["node", "app.js"]

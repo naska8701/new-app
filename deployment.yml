@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: naska8701/njs:main-14c0384
+        env:
+          - name: admin
+            valueFrom:
+              secretKeyRef:
+                name: bXktc2VjcmV0
+                key: T24zSDF0b3JMM3NT
+                optional: false # same as default; "mysecret" must exist
+                                # and include a key named "username"
+        ports:
+        - containerPort: 80
+        args:
+        - /bin/sh
+        - -c
+        - touch /tmp/healthy; sleep 60; rm -f /tmp/healthy; sleep 600
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /tmp/healthy
+          initialDelaySeconds: 30
+          periodSeconds: 30
